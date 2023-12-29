@@ -1,7 +1,7 @@
 package com.devashish.main;
 
-import com.devashish.rawspringboot.framework.HttpServer;
-import com.devashish.rawspringboot.framework.SocketServer;
+import com.devashish.framework.connection.HttpServer;
+import com.devashish.framework.connection.SocketServer;
 
 public class MainClass {
 	public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package com.devashish.rawspringboot.annotations;
+package com.devashish.framework.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package com.devashish.rawspringboot.framework;
+package com.devashish.framework.connection;
 
 import java.io.BufferedReader;
 import java.io.IOException;

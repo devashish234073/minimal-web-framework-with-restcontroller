@@ -1,7 +1,7 @@
 package com.devashish.controller;
 
-import com.devashish.rawspringboot.annotations.GetMapping;
-import com.devashish.rawspringboot.annotations.RestController;
+import com.devashish.framework.annotations.GetMapping;
+import com.devashish.framework.annotations.RestController;
 
 @RestController
 public class MyController {

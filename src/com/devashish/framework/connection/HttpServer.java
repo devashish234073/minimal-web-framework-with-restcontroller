@@ -1,4 +1,4 @@
-package com.devashish.rawspringboot.framework;
+package com.devashish.framework.connection;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import com.devashish.rawspringboot.annotations.GetMapping;
-import com.devashish.rawspringboot.annotations.RestController;
+import com.devashish.framework.annotations.GetMapping;
+import com.devashish.framework.annotations.RestController;
 
 public class HttpServer {
 	

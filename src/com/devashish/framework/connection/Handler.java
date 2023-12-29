@@ -1,4 +1,4 @@
-package com.devashish.rawspringboot.framework;
+package com.devashish.framework.connection;
 
 public class Handler {
     private final Object controller;
