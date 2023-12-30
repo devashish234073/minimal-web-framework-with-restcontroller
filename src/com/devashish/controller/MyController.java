@@ -1,5 +1,7 @@
 package com.devashish.controller;
 
+import java.util.Map;
+
 import com.devashish.framework.annotations.GetMapping;
 import com.devashish.framework.annotations.RestController;
 
@@ -7,7 +9,7 @@ import com.devashish.framework.annotations.RestController;
 public class MyController {
     @GetMapping("/hello1")
     public String sayHello1() {
-        return "Hello, <input type='text'>";
+        return "<h1>name is ${name} and id is ${id}</h1>, <input type='text'>";
     }
     
     @GetMapping("/hello2")

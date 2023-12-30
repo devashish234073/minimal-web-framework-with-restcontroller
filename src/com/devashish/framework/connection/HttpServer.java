@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import com.devashish.framework.annotations.GetMapping;
 import com.devashish.framework.annotations.RestController;
@@ -72,13 +73,19 @@ public class HttpServer {
         urlMappings.put(url, new Handler(controller, method));
     }
 
-    public static String handleRequest(String url) {
+    public static String handleRequest(String url,Map<String,String> queryParamsMap) {
         Handler handler = urlMappings.get(url);
         String message = "";
         if (handler != null) {
             message = handler.handle();
         } else {
             message = "404 Not Found: No handler registered for " + url;
+        }
+        if(queryParamsMap!=null && message.indexOf("${")>-1) {
+        	for(String key : queryParamsMap.keySet()) {
+        		String value = queryParamsMap.get(key);
+        		message = message.replace("${"+key+"}", value);
+        	}
         }
         return HTTP_RESP_PREFIX.replace("_XX_", ""+message.length())+message;
     }

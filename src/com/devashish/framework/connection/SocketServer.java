@@ -7,6 +7,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SocketServer {
 
@@ -42,7 +44,17 @@ public class SocketServer {
 				System.out.println("Received from " + clientSocket.getInetAddress() + ": " + inputLine);
 				if(!responseSend) {
 					String[] firstLineSplit = inputLine.split(" ");
-					String response = HttpServer.handleRequest(firstLineSplit[1]);
+					String urlMapping = firstLineSplit[1];
+					String queryParams = null;
+					if(urlMapping.indexOf("?")>-1) {
+						String[] urlMappingSplit = urlMapping.split("[?]");
+						if(urlMappingSplit.length==2) {
+							urlMapping = urlMappingSplit[0];
+							queryParams = urlMappingSplit[1];
+						}
+					}
+					Map<String,String> queryParamsMap = convertQueryParamsToMap(queryParams);
+					String response = HttpServer.handleRequest(urlMapping,queryParamsMap);
 					responseSend = true;
 					writer.println(response);
 				}
@@ -51,5 +63,20 @@ public class SocketServer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static Map<String,String> convertQueryParamsToMap(String queryParams) {
+		if(queryParams==null) {
+			return null;
+		}
+		Map<String,String> queryParamsMap = new HashMap<String,String>();
+		String[] queryParamsSplit = queryParams.split("&");
+		for(String queryParam : queryParamsSplit) {
+			String[] kv = queryParam.split("=");
+			if(kv.length==2) {
+				queryParamsMap.put(kv[0].trim(), kv[1].trim());
+			}
+		}
+		return queryParamsMap;
 	}
 }
