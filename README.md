@@ -9,7 +9,7 @@ At this point as of commit on 30th December there are only 5 files that are part
 And to use this we can create controller class like this(which is using the @RestController and @GetMapping annotations):
 
 ![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/78f320ac-8f53-4550-b7e4-189a7211a6ae)
-[Notice hoow instead of having @QueryParam we can directly use the params using the $ notation]
+##Notice, how instead of having @QueryParam we can directly use the params using the $ notation
 
 And it also needs a main class to scan the package containing the controllers and to start the server at a particular port:
 
