@@ -16,5 +16,9 @@ And it also needs a main class to scan the package containing the controllers an
 
 ![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/39e622d9-fc58-46f7-85de-2fd31fc7fe3e)
 
+Added support for @RequestParam annotation and injectable HttpHeader
+
+![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/beed0d0e-5d9d-4f1a-be4c-1adba3b2a50a)
+
 
 
