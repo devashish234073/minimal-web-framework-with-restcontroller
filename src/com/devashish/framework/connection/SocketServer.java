@@ -39,30 +39,47 @@ public class SocketServer {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				PrintWriter writer = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()), true)) {
 			String inputLine;
-			boolean responseSend = false;
+			String firstLine = null;
+			Map<String,String> headers  = new HashMap<String,String>();
 			while ((inputLine = reader.readLine()) != null) {
 				System.out.println("Received from " + clientSocket.getInetAddress() + ": " + inputLine);
-				if(!responseSend) {
-					String[] firstLineSplit = inputLine.split(" ");
-					String urlMapping = firstLineSplit[1];
-					String queryParams = null;
-					if(urlMapping.indexOf("?")>-1) {
-						String[] urlMappingSplit = urlMapping.split("[?]");
-						if(urlMappingSplit.length==2) {
-							urlMapping = urlMappingSplit[0];
-							queryParams = urlMappingSplit[1];
-						}
+				if(firstLine==null) {
+					firstLine = inputLine;
+				} else {
+					String[] inputLineSplit = inputLine.split(":",2);
+					if(inputLineSplit.length==2) {
+						headers.put(inputLineSplit[0].toLowerCase(), inputLineSplit[1]);
 					}
-					Map<String,String> queryParamsMap = convertQueryParamsToMap(queryParams);
-					String response = HttpServer.handleRequest(urlMapping,queryParamsMap);
-					responseSend = true;
-					writer.println(response);
 				}
+				if(inputLine.equals("") && firstLine!=null) {
+					processRequest(firstLine,writer,headers);
+					firstLine = null;
+					break;
+				}
+			}
+			if(firstLine!=null) {
+				processRequest(firstLine,writer,headers);
 			}
 			System.out.println("Connection with " + clientSocket.getInetAddress() + " closed.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void processRequest(String firstLine,PrintWriter writer,Map<String,String> headers) {
+		String[] firstLineSplit = firstLine.split(" ");
+		String urlMapping = firstLineSplit[1];
+		String queryParams = null;
+		if(urlMapping.indexOf("?")>-1) {
+			String[] urlMappingSplit = urlMapping.split("[?]");
+			if(urlMappingSplit.length==2) {
+				urlMapping = urlMappingSplit[0];
+				queryParams = urlMappingSplit[1];
+			}
+		}
+		Map<String,String> queryParamsMap = convertQueryParamsToMap(queryParams);
+		String response = HttpServer.handleRequest(urlMapping,queryParamsMap,headers);
+		writer.println(response);
 	}
 	
 	private static Map<String,String> convertQueryParamsToMap(String queryParams) {

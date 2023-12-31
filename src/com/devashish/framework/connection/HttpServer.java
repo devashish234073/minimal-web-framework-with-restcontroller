@@ -73,11 +73,11 @@ public class HttpServer {
         urlMappings.put(url, new Handler(controller, method));
     }
 
-    public static String handleRequest(String url,Map<String,String> queryParamsMap) {
+    public static String handleRequest(String url,Map<String,String> queryParamsMap, Map<String,String> headers) {
         Handler handler = urlMappings.get(url);
         String message = "";
         if (handler != null) {
-            message = handler.handle(queryParamsMap);
+            message = handler.handle(queryParamsMap,headers);
         } else {
             message = "404 Not Found: No handler registered for " + url;
         }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.devashish.framework.annotations.RequestParam;
+import com.devashish.framework.injectable.HttpHeader;
 
 public class Handler {
     private final Object controller;
@@ -17,7 +18,7 @@ public class Handler {
         this.method = method;
     }
 
-    String handle(Map<String,String> queryParamsMap) {
+    String handle(Map<String,String> queryParamsMap,Map<String,String> headers) {
         try {
         	Object[] args = null;
         	if(method.getParameterCount()>0) {
@@ -31,7 +32,11 @@ public class Handler {
             			String annotationValue = queryParamsMap.get(annotationName);
             			args[i] = annotationValue;
             		} else {
-            			args[i] = null;
+            			if(parameter.getType().isAssignableFrom(HttpHeader.class)) {
+            				args[i] = new HttpHeader(headers);
+            			} else {
+            				args[i] = null;
+            			}
             		}
             	}	
         	}
