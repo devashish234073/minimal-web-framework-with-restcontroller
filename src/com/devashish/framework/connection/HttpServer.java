@@ -77,7 +77,7 @@ public class HttpServer {
         Handler handler = urlMappings.get(url);
         String message = "";
         if (handler != null) {
-            message = handler.handle();
+            message = handler.handle(queryParamsMap);
         } else {
             message = "404 Not Found: No handler registered for " + url;
         }
