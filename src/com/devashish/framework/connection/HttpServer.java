@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.devashish.framework.annotations.GetMapping;
+import com.devashish.framework.annotations.ResponseType;
+import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.annotations.RestController;
 
 public class HttpServer {
 	
-	private static final String HTTP_RESP_PREFIX = "HTTP/1.1 200 OK\r\nContent-Length: _XX_\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n";
+	private static final String HTTP_RESP_PREFIX = "HTTP/1.1 200 OK\r\nContent-Length: _XX_\r\nConnection: close\r\nContent-Type: _YY_\r\n\r\n";
 	private static final java.util.Map<String, Handler> urlMappings = new java.util.HashMap<>();
 
     public static void scanAndInitializeControllers(String basePackage) {
@@ -62,23 +64,39 @@ public class HttpServer {
     private static void registerController(Object controller) {
         for (java.lang.reflect.Method method : controller.getClass().getMethods()) {
             if (method.isAnnotationPresent(GetMapping.class)) {
+            	TYPE respType = TYPE.HTML;
+            	if (method.isAnnotationPresent(ResponseType.class)) {
+            		ResponseType responseType = method.getAnnotation(ResponseType.class);
+            		respType = responseType.value();
+                }
                 GetMapping getMapping = method.getAnnotation(GetMapping.class);
-                String mappedUrl = getMapping.value();
-                registerHandler(mappedUrl, controller, method);
+                if(getMapping!=null) {
+                	String mappedUrl = getMapping.value();
+                    registerHandler(mappedUrl, controller, method, respType);	
+                }
             }
         }
     }
 
-    private static void registerHandler(String url, Object controller, java.lang.reflect.Method method) {
-        urlMappings.put(url, new Handler(controller, method));
+    private static void registerHandler(String url, Object controller, java.lang.reflect.Method method, TYPE respType) {
+        urlMappings.put(url, new Handler(controller, method, respType));
     }
 
     public static String handleRequest(String url,Map<String,String> queryParamsMap, Map<String,String> headers) {
         Handler handler = urlMappings.get(url);
+        String prefix = HTTP_RESP_PREFIX;
         String message = "";
         if (handler != null) {
             message = handler.handle(queryParamsMap,headers);
+            if(handler.getRespType()==TYPE.HTML) {
+            	prefix = prefix.replace("_YY_", "text/html");
+            } else if(handler.getRespType()==TYPE.XML) {
+            	prefix = prefix.replace("_YY_", "application/xml");
+            } else if(handler.getRespType()==TYPE.JSON) {
+            	prefix = prefix.replace("_YY_", "application/json");
+            }
         } else {
+        	prefix = prefix.replace("_YY_", "text/html");
             message = "404 Not Found: No handler registered for " + url;
         }
         if(queryParamsMap!=null && message.indexOf("${")>-1) {
@@ -87,7 +105,7 @@ public class HttpServer {
         		message = message.replace("${"+key+"}", value);
         	}
         }
-        return HTTP_RESP_PREFIX.replace("_XX_", ""+message.length())+message;
+        return prefix.replace("_XX_", ""+message.length())+message;
     }
 
 }

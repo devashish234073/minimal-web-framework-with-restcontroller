@@ -1,9 +1,9 @@
 package com.devashish.controller;
 
-import java.util.Map;
-
 import com.devashish.framework.annotations.GetMapping;
 import com.devashish.framework.annotations.RequestParam;
+import com.devashish.framework.annotations.ResponseType;
+import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.annotations.RestController;
 import com.devashish.framework.injectable.HttpHeader;
 
@@ -19,5 +19,17 @@ public class MyController {
 		return "Hello2, <input type='text' value='" + name.toUpperCase() 
 		        + "'><p>" + httpHeaders.get("user-agent")
 				+ "</p><p>" + httpHeaders.get("Host") + "</p>";
+	}
+	
+	@GetMapping("/xmlapi")
+	@ResponseType(TYPE.XML)
+	public String callXmlAPi() {
+		return "<html><head></head><body><p>Hello</p></body></html>";
+	}
+	
+	@GetMapping("/jsonapi")
+	@ResponseType(TYPE.JSON)
+	public String callJsonAPi() {
+		return "{'name':'Devashish','id':123}";
 	}
 }

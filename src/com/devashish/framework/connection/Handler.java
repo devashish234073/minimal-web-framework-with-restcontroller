@@ -7,15 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.devashish.framework.annotations.RequestParam;
+import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.injectable.HttpHeader;
 
 public class Handler {
     private final Object controller;
     private final java.lang.reflect.Method method;
+    private final TYPE respType;
 
-    Handler(Object controller, java.lang.reflect.Method method) {
+    Handler(Object controller, java.lang.reflect.Method method, TYPE respType) {
         this.controller = controller;
         this.method = method;
+        this.respType = respType;
     }
 
     String handle(Map<String,String> queryParamsMap,Map<String,String> headers) {
@@ -50,4 +53,8 @@ public class Handler {
             return e.getMessage();
         }
     }
+
+	public TYPE getRespType() {
+		return respType;
+	}
 }
