@@ -20,5 +20,13 @@ Added support for @RequestParam annotation and injectable HttpHeader
 
 ![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/beed0d0e-5d9d-4f1a-be4c-1adba3b2a50a)
 
+## Update 1st Jan 2024:
+
+Added support for ResponseType to support json and xml responses too:
+
+![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/70b29317-1d70-4974-8dcf-21060c698d5f)
+
+
+
 
 
