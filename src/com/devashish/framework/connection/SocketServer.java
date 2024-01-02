@@ -8,7 +8,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SocketServer {
 
@@ -19,9 +21,9 @@ public class SocketServer {
 	}
 
 	public static void startServer() {
-
+		ServerSocket serverSocket = null;
 		try {
-			ServerSocket serverSocket = new ServerSocket(portNumber);
+			serverSocket = new ServerSocket(portNumber);
 			System.out.println("Server is listening on port " + portNumber);
 
 			while (true) {
@@ -32,33 +34,76 @@ public class SocketServer {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if(serverSocket!=null) {
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
 	private static void handleClient(Socket clientSocket) {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				PrintWriter writer = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()), true)) {
-			String inputLine;
+			//String inputLine = reader.readLine();
 			String firstLine = null;
 			Map<String,String> headers  = new HashMap<String,String>();
-			while ((inputLine = reader.readLine()) != null) {
-				System.out.println("Received from " + clientSocket.getInetAddress() + ": " + inputLine);
-				if(firstLine==null) {
-					firstLine = inputLine;
-				} else {
-					String[] inputLineSplit = inputLine.split(":",2);
-					if(inputLineSplit.length==2) {
-						headers.put(inputLineSplit[0].toLowerCase(), inputLineSplit[1]);
-					}
-				}
-				if(inputLine.equals("") && firstLine!=null) {
-					processRequest(firstLine,writer,headers);
-					firstLine = null;
-					break;
+			String req = "";
+			char[] buffer = new char[100];
+            int bytesRead;
+            int contentLength = -1;
+            String headerStr = null;
+            String body = null;
+            while ((bytesRead = reader.read(buffer)) != -1) {
+                String content = new String(buffer, 0, bytesRead);
+                req+=content;
+                if(contentLength==-1 && req.toLowerCase().indexOf("content-length:")>-1) {
+                	String conLen = req.substring(req.toLowerCase().indexOf("content-length:")+15);
+                	conLen = conLen.substring(0,conLen.indexOf("\n")).trim();
+                	System.out.println("Content-Length header value: "+conLen);
+                	contentLength = Integer.parseInt(conLen);
+                }
+                if(contentLength==-1 && req.toLowerCase().indexOf("\r\n\r\n")>-1) {
+                	break; 
+                }
+                if(contentLength!=-1 && req.toLowerCase().indexOf("\r\n\r\n")>-1) {
+                	String[] reqSplit = req.split("\r\n\r\n");
+                	if(reqSplit.length==2) {
+                		headerStr = reqSplit[0];
+                		body = reqSplit[1];
+                		if(body.length()==contentLength) {
+                			break;
+                		}
+                	}
+                }
+            }
+			String[] reqSplit = req.split("\r\n");
+			firstLine = reqSplit[0];
+			if(headerStr==null || body==null) {
+				String[] headerBodySplit = req.split("\r\n\r\n");
+				headerStr = headerBodySplit[0];
+				if(headerBodySplit.length==2) {
+					body = headerBodySplit[1];	
 				}
 			}
-			if(firstLine!=null) {
-				processRequest(firstLine,writer,headers);
+			for(String header : headerStr.split("\r\n")) {
+				if(header.indexOf(":")>-1) {
+					String[] headerSplit = header.split(":",2);
+					if(headerSplit.length==2) {
+						headers.put(headerSplit[0].toLowerCase(), headerSplit[1]);
+					}
+				}
+			}
+			System.out.println("Header Start:\r\n"+headers+"\r\nHeader End...\r\n");
+			System.out.println("Body Start:\r\n"+body+"\r\nBody End...\r\n");
+			System.out.println("First line of request "+firstLine);
+			if(firstLine!=null && (firstLine.split(" ")).length==3) {
+				processRequest(firstLine,writer,headers,body);
+			} else {
+				writer.println("");
 			}
 			System.out.println("Connection with " + clientSocket.getInetAddress() + " closed.");
 		} catch (IOException e) {
@@ -66,9 +111,10 @@ public class SocketServer {
 		}
 	}
 	
-	private static void processRequest(String firstLine,PrintWriter writer,Map<String,String> headers) {
+	private static void processRequest(String firstLine,PrintWriter writer,Map<String,String> headers,String body) {
 		String[] firstLineSplit = firstLine.split(" ");
 		String urlMapping = firstLineSplit[1];
+		String requestMethod = "["+firstLineSplit[0]+"]";
 		String queryParams = null;
 		if(urlMapping.indexOf("?")>-1) {
 			String[] urlMappingSplit = urlMapping.split("[?]");
@@ -78,7 +124,7 @@ public class SocketServer {
 			}
 		}
 		Map<String,String> queryParamsMap = convertQueryParamsToMap(queryParams);
-		String response = HttpServer.handleRequest(urlMapping,queryParamsMap,headers);
+		String response = HttpServer.handleRequest(requestMethod+urlMapping,queryParamsMap,headers,body);
 		writer.println(response);
 	}
 	

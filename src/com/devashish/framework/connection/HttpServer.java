@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.devashish.framework.annotations.GetMapping;
+import com.devashish.framework.annotations.PostMapping;
 import com.devashish.framework.annotations.ResponseType;
 import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.annotations.RestController;
@@ -17,6 +18,8 @@ public class HttpServer {
 	
 	private static final String HTTP_RESP_PREFIX = "HTTP/1.1 200 OK\r\nContent-Length: _XX_\r\nConnection: close\r\nContent-Type: _YY_\r\n\r\n";
 	private static final java.util.Map<String, Handler> urlMappings = new java.util.HashMap<>();
+	private static final String POST_MAPPING_PREFIX = "[POST]";
+	private static final String GET_MAPPING_PREFIX = "[GET]";
 
     public static void scanAndInitializeControllers(String basePackage) {
         try {
@@ -63,7 +66,7 @@ public class HttpServer {
 
     private static void registerController(Object controller) {
         for (java.lang.reflect.Method method : controller.getClass().getMethods()) {
-            if (method.isAnnotationPresent(GetMapping.class)) {
+            if (method.isAnnotationPresent(GetMapping.class) || method.isAnnotationPresent(PostMapping.class)) {
             	TYPE respType = TYPE.HTML;
             	if (method.isAnnotationPresent(ResponseType.class)) {
             		ResponseType responseType = method.getAnnotation(ResponseType.class);
@@ -71,8 +74,14 @@ public class HttpServer {
                 }
                 GetMapping getMapping = method.getAnnotation(GetMapping.class);
                 if(getMapping!=null) {
-                	String mappedUrl = getMapping.value();
+                	String mappedUrl = GET_MAPPING_PREFIX+getMapping.value();
                     registerHandler(mappedUrl, controller, method, respType);	
+                } else {
+                	PostMapping postMapping = method.getAnnotation(PostMapping.class);
+                	if(postMapping!=null) {
+                    	String mappedUrl = POST_MAPPING_PREFIX+postMapping.value();
+                        registerHandler(mappedUrl, controller, method, respType);	
+                    }
                 }
             }
         }
@@ -82,12 +91,12 @@ public class HttpServer {
         urlMappings.put(url, new Handler(controller, method, respType));
     }
 
-    public static String handleRequest(String url,Map<String,String> queryParamsMap, Map<String,String> headers) {
+    public static String handleRequest(String url,Map<String,String> queryParamsMap, Map<String,String> headers,String body) {
         Handler handler = urlMappings.get(url);
         String prefix = HTTP_RESP_PREFIX;
         String message = "";
         if (handler != null) {
-            message = handler.handle(queryParamsMap,headers);
+            message = handler.handle(queryParamsMap,headers,body);
             if(handler.getRespType()==TYPE.HTML) {
             	prefix = prefix.replace("_YY_", "text/html");
             } else if(handler.getRespType()==TYPE.XML) {

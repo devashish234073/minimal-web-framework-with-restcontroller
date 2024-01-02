@@ -1,11 +1,13 @@
 package com.devashish.controller;
 
 import com.devashish.framework.annotations.GetMapping;
+import com.devashish.framework.annotations.PostMapping;
 import com.devashish.framework.annotations.RequestParam;
 import com.devashish.framework.annotations.ResponseType;
 import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.annotations.RestController;
 import com.devashish.framework.injectable.HttpHeader;
+import com.devashish.framework.injectable.RequestBody;
 
 @RestController
 public class MyController {
@@ -31,5 +33,13 @@ public class MyController {
 	@ResponseType(TYPE.JSON)
 	public String callJsonAPi() {
 		return "{'name':'Devashish','id':123}";
+	}
+	
+	@PostMapping("/xmlpostapi")
+	@ResponseType(TYPE.XML)
+	public String callXmlPostAPi(RequestBody<String> body) {
+		return "<html><head></head><body><p>Hello</p>"+
+	           "<script>let a = "+body.getBody()+"</script>"+
+			   "</body></html>";
 	}
 }

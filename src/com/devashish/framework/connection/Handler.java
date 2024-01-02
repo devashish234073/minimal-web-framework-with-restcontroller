@@ -9,6 +9,7 @@ import java.util.Map;
 import com.devashish.framework.annotations.RequestParam;
 import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.injectable.HttpHeader;
+import com.devashish.framework.injectable.RequestBody;
 
 public class Handler {
     private final Object controller;
@@ -21,11 +22,10 @@ public class Handler {
         this.respType = respType;
     }
 
-    String handle(Map<String,String> queryParamsMap,Map<String,String> headers) {
+    String handle(Map<String,String> queryParamsMap,Map<String,String> headers,String body) {
         try {
         	Object[] args = null;
         	if(method.getParameterCount()>0) {
-        		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
             	args = new Object[method.getParameterCount()];
             	for(int i=0;i<method.getParameters().length;i++) {
             		Parameter parameter = method.getParameters()[i];
@@ -37,6 +37,8 @@ public class Handler {
             		} else {
             			if(parameter.getType().isAssignableFrom(HttpHeader.class)) {
             				args[i] = new HttpHeader(headers);
+            			} else if(parameter.getType().isAssignableFrom(RequestBody.class)) {
+            				args[i] = new RequestBody<String>(body);
             			} else {
             				args[i] = null;
             			}
