@@ -1,15 +1,15 @@
 package com.devashish.framework.connection;
 
+import java.io.StringReader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.devashish.framework.annotations.RequestParam;
 import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.injectable.HttpHeader;
-import com.devashish.framework.injectable.RequestBody;
+import com.devashish.framework.annotations.RequestBody;
 
 public class Handler {
     private final Object controller;
@@ -37,8 +37,19 @@ public class Handler {
             		} else {
             			if(parameter.getType().isAssignableFrom(HttpHeader.class)) {
             				args[i] = new HttpHeader(headers);
-            			} else if(parameter.getType().isAssignableFrom(RequestBody.class)) {
-            				args[i] = new RequestBody<String>(body);
+            			} else if(parameter.getAnnotation(RequestBody.class)!=null) {
+            				RequestBody requestBodyAnnotation = parameter.getAnnotation(RequestBody.class);
+            				if(parameter.getType().isAssignableFrom(String.class)) {
+            					args[i] = body;
+            				} else {
+            					if(requestBodyAnnotation.value()==TYPE.JSON) {
+            						args[i] = parseJson(body,parameter.getType());	
+            					} else if(requestBodyAnnotation.value()==TYPE.XML) {
+            						args[i] = parseXml(body,parameter.getType());
+            					} else {
+            						args[i] = null;
+            					}
+            				}
             			} else {
             				args[i] = null;
             			}
@@ -55,6 +66,30 @@ public class Handler {
             return e.getMessage();
         }
     }
+
+	private Object parseXml(String body, Class<?> type) {
+		try {
+			Object obj = type.getDeclaredConstructor().newInstance();
+			return obj;
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private Object parseJson(String body, Class<?> type) {
+		try {
+			Object obj = type.getDeclaredConstructor().newInstance();
+			return obj;
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public TYPE getRespType() {
 		return respType;
