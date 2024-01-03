@@ -1,14 +1,15 @@
 package com.devashish.controller;
 
+import com.devashish.beans.Employee;
 import com.devashish.beans.Person;
 import com.devashish.framework.annotations.GetMapping;
 import com.devashish.framework.annotations.PostMapping;
+import com.devashish.framework.annotations.RequestBody;
 import com.devashish.framework.annotations.RequestParam;
 import com.devashish.framework.annotations.ResponseType;
 import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.annotations.RestController;
 import com.devashish.framework.injectable.HttpHeader;
-import com.devashish.framework.annotations.RequestBody;
 
 @RestController
 public class ExamplesController {
@@ -38,20 +39,20 @@ public class ExamplesController {
 	
 	@PostMapping("/xmlpostapireqjson")
 	@ResponseType(TYPE.XML)
-	public String callXmlPostAPiReqJson(@RequestBody(TYPE.JSON) Person body) {
-		return "<html><head></head><body><p>Hello</p>"+
-	           "<p>Name: "+body.getName()+"</p>"+
-	           "<p>Id: "+body.getId()+"</p>"+
-			   "</body></html>";
+	public Employee callXmlPostAPiReqJson(@RequestBody(TYPE.JSON) Person body) {
+		Employee emp = new Employee();
+		emp.setPerson(body);
+		emp.setEmployeeId("123");
+		return emp;
 	}
 	
 	@PostMapping("/xmlpostapireqxml")
-	@ResponseType(TYPE.XML)
-	public String callXmlPostAPiReqXml(@RequestBody(TYPE.XML) Person body) {
-		return "<html><head></head><body><p>Hello</p>"+
-	           "<p>Name: "+body.getName()+"</p>"+
-	           "<p>Id: "+body.getId()+"</p>"+
-			   "</body></html>";
+	@ResponseType(TYPE.JSON)
+	public Employee callXmlPostAPiReqXml(@RequestBody(TYPE.XML) Person body) {
+		Employee emp = new Employee();
+		emp.setPerson(body);
+		emp.setEmployeeId("123");
+		return emp;
 	}
 	
 	@PostMapping("/xmlpostapi")

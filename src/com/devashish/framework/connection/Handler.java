@@ -1,18 +1,16 @@
 package com.devashish.framework.connection;
 
-import java.io.StringReader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.Map;
 
+import com.devashish.framework.annotations.RequestBody;
 import com.devashish.framework.annotations.RequestParam;
+import com.devashish.framework.annotations.ResponseType;
 import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.injectable.HttpHeader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.devashish.framework.annotations.RequestBody;
 
 public class Handler {
     private final Object controller;
@@ -59,11 +57,24 @@ public class Handler {
             		}
             	}	
         	}
-        	if(args==null) {
-        		return (String) method.invoke(controller);
-        	} else {
-        		return (String) method.invoke(controller,args);
-        	}
+        	if(method.getReturnType()==String.class) {
+        		if(args==null) {
+            		return (String) method.invoke(controller);
+            	} else {
+            		return (String) method.invoke(controller,args);
+            	}	
+    		} else {
+    			TYPE type = TYPE.JSON;
+    			ResponseType responseTypeAnnotation = method.getAnnotation(ResponseType.class);
+    			if(responseTypeAnnotation!=null && responseTypeAnnotation.value()==TYPE.XML) {
+    				type = TYPE.XML;
+    			}
+    			if(args==null) {
+            		return new ResponseDeparser(method.invoke(controller),type).getBody();
+            	} else {
+            		return (new ResponseDeparser(method.invoke(controller,args),type)).getBody();
+            	}
+    		}
         } catch (Exception e) {
             e.printStackTrace();
             return e.getMessage();
