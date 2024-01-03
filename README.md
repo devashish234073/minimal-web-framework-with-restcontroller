@@ -26,6 +26,13 @@ And it also needs a main class to scan the package containing the controllers an
 
 ![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/70b29317-1d70-4974-8dcf-21060c698d5f)
 
+## Update 3rd Jan 2024:
+
+Added @PostMapping and @RequestBody annotaion support , also converted teh project into a maven one to use the fasterxml dependencies to parsing request xml or json into objects
+
+![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/448a1184-779c-4583-8ffa-6b8f36287673)
+
+
 
 
 
