@@ -9,6 +9,9 @@ import java.util.Map;
 import com.devashish.framework.annotations.RequestParam;
 import com.devashish.framework.annotations.ResponseType.TYPE;
 import com.devashish.framework.injectable.HttpHeader;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.devashish.framework.annotations.RequestBody;
 
 public class Handler {
@@ -68,24 +71,24 @@ public class Handler {
     }
 
 	private Object parseXml(String body, Class<?> type) {
+		XmlMapper xmlMapper = new XmlMapper();
+		Object obj;
 		try {
-			Object obj = type.getDeclaredConstructor().newInstance();
+			obj = xmlMapper.readValue(body, type);
 			return obj;
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
+		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
 	private Object parseJson(String body, Class<?> type) {
+		ObjectMapper objectMapper = new ObjectMapper();
+        Object obj;
 		try {
-			Object obj = type.getDeclaredConstructor().newInstance();
+			obj = objectMapper.readValue(body, type);
 			return obj;
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-			// TODO Auto-generated catch block
+		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
 		return null;

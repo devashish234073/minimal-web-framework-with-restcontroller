@@ -1,5 +1,6 @@
 package com.devashish.controller;
 
+import com.devashish.beans.Person;
 import com.devashish.framework.annotations.GetMapping;
 import com.devashish.framework.annotations.PostMapping;
 import com.devashish.framework.annotations.RequestParam;
@@ -10,7 +11,7 @@ import com.devashish.framework.injectable.HttpHeader;
 import com.devashish.framework.annotations.RequestBody;
 
 @RestController
-public class MyController {
+public class ExamplesController {
 	@GetMapping("/hello1")
 	public String sayHello1() {
 		return "<h1>name is ${name} and id is ${id}</h1>, <input type='text'>";
@@ -33,6 +34,24 @@ public class MyController {
 	@ResponseType(TYPE.JSON)
 	public String callJsonAPi() {
 		return "{'name':'Devashish','id':123}";
+	}
+	
+	@PostMapping("/xmlpostapireqjson")
+	@ResponseType(TYPE.XML)
+	public String callXmlPostAPiReqJson(@RequestBody(TYPE.JSON) Person body) {
+		return "<html><head></head><body><p>Hello</p>"+
+	           "<p>Name: "+body.getName()+"</p>"+
+	           "<p>Id: "+body.getId()+"</p>"+
+			   "</body></html>";
+	}
+	
+	@PostMapping("/xmlpostapireqxml")
+	@ResponseType(TYPE.XML)
+	public String callXmlPostAPiReqXml(@RequestBody(TYPE.XML) Person body) {
+		return "<html><head></head><body><p>Hello</p>"+
+	           "<p>Name: "+body.getName()+"</p>"+
+	           "<p>Id: "+body.getId()+"</p>"+
+			   "</body></html>";
 	}
 	
 	@PostMapping("/xmlpostapi")
