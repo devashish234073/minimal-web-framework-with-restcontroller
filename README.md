@@ -32,6 +32,15 @@ Added @PostMapping and @RequestBody annotaion support , also converted teh proje
 
 ![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/448a1184-779c-4583-8ffa-6b8f36287673)
 
+Added a ResponseDeparser class to simplify the code in the controller so that instead if creating the whole JSON or XML we can just return any Class type which will be converted into JSON or XML string by the framework. 
+
+The conversion uses the ObjectMapper from fasterxml:
+
+![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/4f8a6a08-6ad1-4fc1-8098-f1dc830a76cf)
+
+This is the simplified usage in controller after this:
+
+![image](https://github.com/devashish234073/minimal-web-framework-with-restcontroller/assets/20777854/9fbb4e57-1daf-4d22-8d2e-a25fe8479745)
 
 
 
